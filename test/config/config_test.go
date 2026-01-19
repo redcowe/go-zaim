@@ -21,7 +21,6 @@ func setup() {
 	os.Setenv("ZAIM_CONSUMER_SECRET", "consumer_secret")
 	os.Setenv("ZAIM_ACCESS_TOKEN", "access_token")
 	os.Setenv("ZAIM_ACCESS_SECRET", "access_secret")
-	os.Setenv("PORT", "8080")
 }
 
 func TestGetNewConfigFromEnv(t *testing.T) {
@@ -53,47 +52,6 @@ func TestNewConfigLoadsAllCredentials(t *testing.T) {
 			t.Errorf("%s = %q, want %q", tt.name, tt.got, tt.want)
 		}
 	}
-}
-
-func TestNewConfigLoadsPort(t *testing.T) {
-	cfg, err := config.NewConfig()
-	if err != nil {
-		t.Fatalf("NewConfig() returned unexpected error: %v", err)
-	}
-	if cfg.Port != "8080" {
-		t.Errorf("Port = %q, want %q", cfg.Port, "8080")
-	}
-}
-
-func TestNewConfigDefaultPort(t *testing.T) {
-	// Clear PORT to test default behavior
-	os.Unsetenv("PORT")
-
-	cfg, err := config.NewConfig()
-	if err != nil {
-		t.Fatalf("NewConfig() returned unexpected error: %v", err)
-	}
-	if cfg.Port != "8080" {
-		t.Errorf("Port = %q, want default %q", cfg.Port, "8080")
-	}
-
-	// Restore PORT for other tests
-	os.Setenv("PORT", "8080")
-}
-
-func TestNewConfigCustomPort(t *testing.T) {
-	os.Setenv("PORT", "3000")
-
-	cfg, err := config.NewConfig()
-	if err != nil {
-		t.Fatalf("NewConfig() returned unexpected error: %v", err)
-	}
-	if cfg.Port != "3000" {
-		t.Errorf("Port = %q, want %q", cfg.Port, "3000")
-	}
-
-	// Restore PORT for other tests
-	os.Setenv("PORT", "8080")
 }
 
 func TestNewConfigMissingCredentials(t *testing.T) {

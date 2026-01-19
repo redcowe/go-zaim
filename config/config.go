@@ -2,7 +2,6 @@ package config
 
 import (
 	"errors"
-	"log/slog"
 	"os"
 	"strings"
 
@@ -10,7 +9,6 @@ import (
 )
 
 type Config struct {
-	Port        string
 	Credentials Credentials
 }
 
@@ -24,18 +22,11 @@ type Credentials struct {
 func NewConfig() (*Config, error) {
 	_ = godotenv.Load(".env")
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		slog.Info("port not found in env. defaulting to 8080")
-		port = "8080"
-	}
-
 	credentials, err := loadCredentials()
 	if err != nil {
 		return nil, err
 	}
 	return &Config{
-		Port:        port,
 		Credentials: *credentials,
 	}, nil
 }
