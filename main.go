@@ -15,6 +15,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	res := z.VerifyAuthentication()
-	fmt.Println(res)
+	res, v := z.VerifyUserAuthentication()
+	if res {
+		fmt.Println(v.ProfileImageUrl)
+	}
+
 }
