@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/dghubble/oauth1"
-	"github.com/redcowe/go-zaim/config"
+	"github.com/redcowe/go-zaim/internal/config"
 )
 
 type Zaim struct {

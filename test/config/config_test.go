@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/redcowe/go-zaim/config"
+	"github.com/redcowe/go-zaim/internal/config"
 )
 
 func TestMain(m *testing.M) {
