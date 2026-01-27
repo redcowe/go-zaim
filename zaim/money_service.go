@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 )
 
 // MoneyService handles money-related API operations.
@@ -160,6 +161,48 @@ func (m *MoneyService) CreateTransfer(req *TransferRequest) (*PaymentResponse, e
 	var result PaymentResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, fmt.Errorf("error decoding post transfer response: %w", err)
+	}
+
+	return &result, nil
+}
+
+func (m *MoneyService) UpdatePayment(id int, req *PaymentRequest) (*PaymentResponse, error) {
+	u, _ := url.Parse("https://api.zaim.net/v2/home/money/payment/" + strconv.Itoa(id))
+	values := url.Values{}
+	values.Set("mapping", "1")
+	values.Set("category_id", strconv.Itoa(req.CategoryId))
+	values.Set("genre_id", strconv.Itoa(req.GenreId))
+	values.Set("amount", strconv.Itoa(req.Amount))
+	values.Set("date", req.Date.Format("2006-01-02"))
+
+	if req.FromAccountId != 0 {
+		values.Set("from_account_id", strconv.Itoa(req.FromAccountId))
+	}
+	if req.Comment != "" {
+		values.Set("comment", req.Comment)
+	}
+	if req.Name != "" {
+		values.Set("name", req.Name)
+	}
+	if req.Place != "" {
+		values.Set("place", req.Place)
+	}
+
+	httpReq, err := http.NewRequest(http.MethodPut, u.String(), strings.NewReader(values.Encode()))
+	if err != nil {
+		return nil, fmt.Errorf("error creating update payment request: %w", err)
+	}
+	httpReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := m.client.Do(httpReq)
+	if err != nil {
+		return nil, fmt.Errorf("error making update payment request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	var result PaymentResponse
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("error decoding update payment response: %w", err)
 	}
 
 	return &result, nil
