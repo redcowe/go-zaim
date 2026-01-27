@@ -59,6 +59,16 @@ type PaymentRequest struct {
 	Place         string    // Optional: location
 }
 
+type IncomeRequest struct {
+	CategoryId  int       // Required
+	Amount      int       // Required
+	Date        time.Time // Required
+	ToAccountId int       // Optional: account ID to debit
+	Comment     string    // Optional: memo/note
+	Name        string    // Optional: item name
+	Place       string    // Optional: location
+}
+
 // PaymentResponse is the response from posting a payment.
 type PaymentResponse struct {
 	Stamps       string       `json:"stamps"`
@@ -81,7 +91,7 @@ type User struct {
 type Place struct {
 	ID                int    `json:"id"`
 	UserID            int    `json:"user_id"`
-	GenreID           int    `json:"genre_id"`
+	GenreID           int    `json:"genre_id,omitempty"`
 	CategoryID        int    `json:"category_id"`
 	AccountID         int    `json:"account_id"`
 	TransferAccountID int    `json:"transfer_account_id"`

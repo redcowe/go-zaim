@@ -98,3 +98,38 @@ func (m *MoneyService) CreatePayment(req *PaymentRequest) (*PaymentResponse, err
 
 	return &result, nil
 }
+
+func (m *MoneyService) CreateIncome(req *IncomeRequest) (*PaymentResponse, error) {
+	u, _ := url.Parse("https://api.zaim.net/v2/home/money/income")
+	values := url.Values{}
+	values.Set("mapping", "1")
+	values.Set("category_id", strconv.Itoa(req.CategoryId))
+	values.Set("amount", strconv.Itoa(req.Amount))
+	values.Set("date", req.Date.Format("2006-01-02"))
+
+	if req.ToAccountId != 0 {
+		values.Set("to_account_id", strconv.Itoa(req.ToAccountId))
+	}
+	if req.Comment != "" {
+		values.Set("comment", req.Comment)
+	}
+	if req.Name != "" {
+		values.Set("name", req.Name)
+	}
+	if req.Place != "" {
+		values.Set("place", req.Place)
+	}
+
+	resp, err := m.client.PostForm(u.String(), values)
+	if err != nil {
+		return nil, fmt.Errorf("error making post income request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	var result PaymentResponse
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("error decoding post income response: %w", err)
+	}
+
+	return &result, nil
+}
