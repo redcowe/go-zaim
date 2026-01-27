@@ -34,17 +34,7 @@ type ListRecordsRequest struct {
 
 // ListRecordsResponse is the response from listing money records.
 type ListRecordsResponse struct {
-	Money []Money `json:"money"`
-}
-
-// NewPaymentRequest creates a new PaymentRequest with required fields.
-func NewPaymentRequest(categoryId, genreId, amount int, date time.Time) *PaymentRequest {
-	return &PaymentRequest{
-		CategoryId: categoryId,
-		GenreId:    genreId,
-		Amount:     amount,
-		Date:       date,
-	}
+	Money []listMoney `json:"money"`
 }
 
 // PaymentRequest contains parameters for posting a payment.
@@ -56,7 +46,7 @@ type PaymentRequest struct {
 	FromAccountId int       // Optional: account ID to debit
 	Comment       string    // Optional: memo/note
 	Name          string    // Optional: item name
-	Place         string    // Optional: location
+	Place         string    // Optional: location (max 100 characters)
 }
 
 type IncomeRequest struct {
@@ -66,21 +56,29 @@ type IncomeRequest struct {
 	ToAccountId int       // Optional: account ID to debit
 	Comment     string    // Optional: memo/note
 	Name        string    // Optional: item name
-	Place       string    // Optional: location
+	Place       string    // Optional: location (max 100 characters)
+}
+
+type TransferRequest struct {
+	Amount        int       // Required
+	Date          time.Time // Required
+	FromAccountId int       // Required: account ID to debit
+	ToAccountId   int       // Required: account ID to credit
+	Comment       string    // Optional: memo/note (max 100 characters)
 }
 
 // PaymentResponse is the response from posting a payment.
 type PaymentResponse struct {
 	Stamps       string       `json:"stamps"`
 	Banners      []string     `json:"banners"`
-	PaymentMoney PaymentMoney `json:"money"`
-	Place        Place        `json:"place,omitempty"`
-	User         User         `json:"user"`
+	PaymentMoney paymentMoney `json:"money"`
+	Place        place        `json:"place,omitempty"`
+	User         user         `json:"user"`
 	Requested    int          `json:"requested"`
 }
 
 // User contains user metadata in responses.
-type User struct {
+type user struct {
 	InputCount   int    `json:"input_count"`
 	RepeatCount  int    `json:"repeat_count"`
 	DayCount     int    `json:"day_count"`
@@ -88,7 +86,7 @@ type User struct {
 }
 
 // Place represents a location/merchant.
-type Place struct {
+type place struct {
 	ID                int    `json:"id"`
 	UserID            int    `json:"user_id"`
 	GenreID           int    `json:"genre_id,omitempty"`
@@ -111,7 +109,7 @@ type Place struct {
 }
 
 // Money represents a money record.
-type Money struct {
+type listMoney struct {
 	ID         int    `json:"id"`
 	Mode       string `json:"mode"`
 	UserID     int    `json:"user_id"`
@@ -126,7 +124,7 @@ type Money struct {
 }
 
 // PaymentMoney contains payment details in responses.
-type PaymentMoney struct {
+type paymentMoney struct {
 	ID       int    `json:"id"`
 	PlaceUid string `json:"place_uid,omitempty"`
 	Modified string `json:"modified"`

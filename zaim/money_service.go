@@ -133,3 +133,34 @@ func (m *MoneyService) CreateIncome(req *IncomeRequest) (*PaymentResponse, error
 
 	return &result, nil
 }
+
+func (m *MoneyService) CreateTransfer(req *TransferRequest) (*PaymentResponse, error) {
+	u, _ := url.Parse("https://api.zaim.net/v2/home/money/transfer")
+	values := url.Values{}
+	values.Set("mapping", "1")
+	values.Set("amount", strconv.Itoa(req.Amount))
+	values.Set("date", req.Date.Format("2006-01-02"))
+
+	if req.FromAccountId != 0 {
+		values.Set("from_account_id", strconv.Itoa(req.FromAccountId))
+	}
+	if req.ToAccountId != 0 {
+		values.Set("to_account_id", strconv.Itoa(req.ToAccountId))
+	}
+	if req.Comment != "" && len(req.Comment) <= 100 {
+		values.Set("comment", req.Comment)
+	}
+
+	resp, err := m.client.PostForm(u.String(), values)
+	if err != nil {
+		return nil, fmt.Errorf("error making post transfer request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	var result PaymentResponse
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("error decoding post transfer response: %w", err)
+	}
+
+	return &result, nil
+}
