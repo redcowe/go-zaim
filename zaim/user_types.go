@@ -1,10 +1,6 @@
 package zaim
 
-import (
-	"encoding/json"
-	"fmt"
-)
-
+// VerifyUserAuthenticationResponse contains user data from authentication verification.
 type VerifyUserAuthenticationResponse struct {
 	ID              int    `json:"id,omitempty"`
 	Login           string `json:"login,omitempty"`
@@ -19,32 +15,4 @@ type VerifyUserAuthenticationResponse struct {
 	ProfileImageUrl string `json:"profile_image_url,omitempty"`
 	CoverImageUrl   string `json:"cover_image_url,omitempty"`
 	ProfileModified string `json:"profile_modified,omitempty"`
-}
-
-func (z *Zaim) VerifyUserAuthentication() (bool, *VerifyUserAuthenticationResponse) {
-	resp, err := z.client.Get("https://api.zaim.net/v2/home/user/verify")
-	if err != nil {
-		fmt.Printf("there was an error when making verify authentication request: %s\n", err.Error())
-		return false, nil
-	}
-
-	var v verifyUserAuthenticationResponseDto
-	err = json.NewDecoder(resp.Body).Decode(&v)
-
-	if err != nil {
-		fmt.Printf("there was an error decoding %s\n", err.Error())
-
-		return false, nil
-	}
-
-	r, err := v.ToResponse()
-
-	if err != nil {
-		fmt.Printf("there was an error parsing the DTO: %s\n", err.Error())
-		return false, nil
-	}
-
-	defer resp.Body.Close()
-
-	return true, r
 }
