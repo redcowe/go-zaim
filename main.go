@@ -18,10 +18,10 @@ func main() {
 	}
 
 	transferRequest := &zaim.TransferRequest{
-		Amount:        10000,
+		Amount:        1000,
 		Date:          time.Now(),
 		FromAccountId: 1,
-		ToAccountId:   2,
+		ToAccountId:   1,
 		Comment:       "test",
 	}
 
@@ -32,7 +32,25 @@ func main() {
 		os.Exit(1)
 	}
 
-	prettyJSON, _ := json.MarshalIndent(res, "", "  ")
-	fmt.Println(string(prettyJSON))
+	fmt.Println("transfer created")
 
+	time.Sleep(10 * time.Second)
+
+	updateTransferRequest := &zaim.TransferRequest{
+		Amount:        100000,
+		Date:          time.Now(),
+		FromAccountId: 1,
+		ToAccountId:   3,
+		Comment:       "test",
+	}
+
+	updateRes, err := z.Money.UpdateTransfer(res.PaymentMoney.ID, updateTransferRequest)
+
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	prettyJSON, _ := json.MarshalIndent(updateRes, "", "  ")
+	fmt.Println(string(prettyJSON))
 }

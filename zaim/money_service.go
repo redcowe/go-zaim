@@ -207,3 +207,81 @@ func (m *MoneyService) UpdatePayment(id int, req *PaymentRequest) (*PaymentRespo
 
 	return &result, nil
 }
+
+func (m *MoneyService) UpdateIncome(id int, req *IncomeRequest) (*PaymentResponse, error) {
+	u, _ := url.Parse("https://api.zaim.net/v2/home/money/income/" + strconv.Itoa(id))
+	values := url.Values{}
+	values.Set("mapping", "1")
+	values.Set("category_id", strconv.Itoa(req.CategoryId))
+	values.Set("amount", strconv.Itoa(req.Amount))
+	values.Set("date", req.Date.Format("2006-01-02"))
+
+	if req.ToAccountId != 0 {
+		values.Set("to_account_id", strconv.Itoa(req.ToAccountId))
+	}
+	if req.Comment != "" {
+		values.Set("comment", req.Comment)
+	}
+	if req.Name != "" {
+		values.Set("name", req.Name)
+	}
+	if req.Place != "" {
+		values.Set("place", req.Place)
+	}
+
+	httpReq, err := http.NewRequest(http.MethodPut, u.String(), strings.NewReader(values.Encode()))
+	if err != nil {
+		return nil, fmt.Errorf("error creating update income request: %w", err)
+	}
+	httpReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := m.client.Do(httpReq)
+	if err != nil {
+		return nil, fmt.Errorf("error making update income request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	var result PaymentResponse
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("error decoding update income response: %w", err)
+	}
+
+	return &result, nil
+}
+
+func (m *MoneyService) UpdateTransfer(id int, req *TransferRequest) (*PaymentResponse, error) {
+	u, _ := url.Parse("https://api.zaim.net/v2/home/money/transfer/" + strconv.Itoa(id))
+	values := url.Values{}
+	values.Set("mapping", "1")
+	values.Set("amount", strconv.Itoa(req.Amount))
+	values.Set("date", req.Date.Format("2006-01-02"))
+
+	if req.FromAccountId != 0 {
+		values.Set("from_account_id", strconv.Itoa(req.FromAccountId))
+	}
+	if req.ToAccountId != 0 {
+		values.Set("to_account_id", strconv.Itoa(req.ToAccountId))
+	}
+	if req.Comment != "" && len(req.Comment) <= 100 {
+		values.Set("comment", req.Comment)
+	}
+
+	httpReq, err := http.NewRequest(http.MethodPut, u.String(), strings.NewReader(values.Encode()))
+	if err != nil {
+		return nil, fmt.Errorf("error creating update transfer request: %w", err)
+	}
+	httpReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := m.client.Do(httpReq)
+	if err != nil {
+		return nil, fmt.Errorf("error making update transfer request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	var result PaymentResponse
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("error decoding update transfer response: %w", err)
+	}
+
+	return &result, nil
+}
